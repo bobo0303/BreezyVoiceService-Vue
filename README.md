@@ -1,5 +1,7 @@
 # bv_vue
 
+<img src="\src\assets\BV.png" alt="\src\assets\BV.png" title="\src\assets\BV.png" width="1312" height="300">
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup
