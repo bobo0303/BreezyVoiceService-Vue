@@ -3,13 +3,14 @@ import { ref, provide } from 'vue'
 import axios from 'axios'
 import TaskGenerateView from '@/views/TaskGenerateView.vue'
 import SingleGenerateView from '@/views/SingleGenerateView.vue'
+import WalkerCompose from '@/views/WalkerCompose.vue'
 
 // 共用狀態
 const taskId = ref('')
 const speakerUploadFile = ref<File | null>(null)
 const txtUploadFile = ref<File | null>(null)
 const csvUploadFile = ref<File | null>(null)
-const state_result = ref('')
+const stateResult = ref('')
 const speakerUploadResult = ref('')
 const csvUploadResult = ref('')
 const speakerList = ref<string | string[]>('')
@@ -20,14 +21,15 @@ const expansionRatio = ref(1)
 const downloadUrl = ref('')
 const downloadaudios = ref('')
 const qualityCheck = ref(false)
-const thread_ratio = ref(1)
+const threadRatio = ref(1)
 const threadSuggestion = ref('')
 const generateResult = ref('')
 const optResult = ref('')
 const csvCheckResult = ref('')
 const isTooltipVisible = ref(false)
-const istxttipVisible = ref(false)
-const iscattipVisible = ref(false)
+const isTxtTipVisible = ref(false)
+const isCatTipVisible = ref(false)
+const isGenerateTipVisible = ref(false)
 const tooltipX = ref(0)
 const tooltipY = ref(0)
 
@@ -36,6 +38,7 @@ provide('taskId', taskId)
 provide('speakerUploadFile', speakerUploadFile)
 provide('txtUploadFile', txtUploadFile)
 provide('csvUploadFile', csvUploadFile)
+provide('stateResult', stateResult)
 provide('speakerUploadResult', speakerUploadResult)
 provide('csvUploadResult', csvUploadResult)
 provide('speakerList', speakerList)
@@ -44,39 +47,48 @@ provide('expansionRatio', expansionRatio)
 provide('downloadUrl', downloadUrl)
 provide('downloadaudios', downloadaudios)
 provide('qualityCheck', qualityCheck)
-provide('thread_ratio', thread_ratio)
+provide('threadRatio', threadRatio)
 provide('threadSuggestion', threadSuggestion)
 provide('generateResult', generateResult)
 provide('optResult', optResult)
 provide('csvCheckResult', csvCheckResult)
 provide('isTooltipVisible', isTooltipVisible)
-provide('istxttipVisible', istxttipVisible)
+provide('isTxtTipVisible', isTxtTipVisible)
+provide('isGenerateTipVisible', isGenerateTipVisible)
 provide('tooltipX', tooltipX)
 provide('tooltipY', tooltipY)
 
 // 工具函數
-const showTooltip = () => {
+const showToolTip = () => {
   isTooltipVisible.value = true
 }
 
-const hideTooltip = () => {
+const hideToolTip = () => {
   isTooltipVisible.value = false
 }
 
-const showcattip = () => {
-  iscattipVisible.value = true
+const showCatTip = () => {
+  isCatTipVisible.value = true
 }
 
-const hidecattip = () => {
-  iscattipVisible.value = false
+const hideCatTip = () => {
+  isCatTipVisible.value = false
 }
 
-const showtxttip = () => {
-  istxttipVisible.value = true
+const showTxtTip = () => {
+  isTxtTipVisible.value = true
 }
 
-const hidetxttip = () => {
-  istxttipVisible.value = false
+const hideTxtTip = () => {
+  isTxtTipVisible.value = false
+}
+
+const showGenerateTip = () => {
+  isGenerateTipVisible.value = true
+}
+
+const hideGenerateTip = () => {
+  isGenerateTipVisible.value = false
 }
 
 const updateTooltipPosition = (event: MouseEvent) => {
@@ -84,8 +96,13 @@ const updateTooltipPosition = (event: MouseEvent) => {
   tooltipY.value = event.pageY + 10
 }
 
-const updatetxttipPosition = (event: MouseEvent) => {
+const updateTxtTipPosition = (event: MouseEvent) => {
   tooltipX.value = event.pageX - 300
+  tooltipY.value = event.pageY + 10
+}
+
+const updateGenerateTipPosition = (event: MouseEvent) => {
+  tooltipX.value = event.pageX - 500
   tooltipY.value = event.pageY + 10
 }
 
@@ -103,10 +120,10 @@ const switchToPage = (pageName: string) => {
 }
 
 const handleStateButtonClick = async () => {
-  state_result.value = 'Now processing...please wait'
+  stateResult.value = 'Now processing...please wait'
   const url = `http://52.183.25.173:52010/task_status?task_id=${taskId.value}`
   if (!taskId.value) {
-    state_result.value = 'Please enter a Task ID'
+    stateResult.value = 'Please enter a Task ID'
     return
   }
   try {
@@ -114,21 +131,21 @@ const handleStateButtonClick = async () => {
       timeout: 10000,
     })
     if (response.data['status'] === 'FAILED') {
-      state_result.value = response.data['message']
+      stateResult.value = response.data['message']
       return
     } else if (response.data['status'] === 'OK') {
-      state_result.value = ` | State: ${response.data['data']['state']} | Progress: ${response.data['data']['progress']} \
+      stateResult.value = ` | State: ${response.data['data']['state']} | Progress: ${response.data['data']['progress']} \
                     | Total audio: ${response.data['data']['audio_count']} | Keep: ${response.data['data']['keep']} \
                     | Delete: ${response.data['data']['del']} | Unprocessed: ${response.data['data']['unprocessed']} | `
     } else {
-      state_result.value = response.data
+      stateResult.value = response.data
     }
     console.log(response.data)
   } catch (error) {
     if (axios.isAxiosError(error) && error.code === 'ECONNABORTED') {
-      state_result.value = 'The request timed out. Please try again.'
+      stateResult.value = 'The request timed out. Please try again.'
     } else {
-      state_result.value = 'An error occurred. Please try again.'
+      stateResult.value = 'An error occurred. Please try again.'
     }
     console.error(error)
   }
@@ -231,7 +248,7 @@ const handleCSVClick = async () => {
       timeout: 10000,
     })
     const contentType = response.headers['content-type']
-    
+
     // 檢查是否為錯誤響應（通常是 JSON 格式）
     if (contentType && contentType.indexOf('application/json') !== -1) {
       // 將 blob 轉換為文本來讀取錯誤消息
@@ -264,7 +281,7 @@ const handleCSVClick = async () => {
   }
 }
 
-const handlethreadsuggestionClick = async () => {
+const handleThreadSuggestionClick = async () => {
   threadSuggestion.value = 'Now processing...please wait'
   const url = `http://52.183.25.173:52010/thread_suggestion`
   try {
@@ -290,7 +307,7 @@ const handlethreadsuggestionClick = async () => {
   }
 }
 
-const handlecheckcsvClick = async () => {
+const handleCheckCsvClick = async () => {
   csvCheckResult.value = 'Now processing...please wait (if file is large, it may take a while)'
   downloadUrl.value = ''
   const url = `http://52.183.25.173:52010/check_csv_format`
@@ -354,9 +371,9 @@ const handlestartgenerateClick = async () => {
   formData.append('csv_file', csvUploadFile.value!)
   formData.append('task_id', taskId.value)
   formData.append('quality_check', qualityCheck.value.toString())
-  formData.append('num_thread', thread_ratio.value.toString())
+  formData.append('num_thread', threadRatio.value.toString())
   console.log(
-    `Task ID: ${taskId.value}, Quality Check: ${qualityCheck.value}, Thread Ratio: ${thread_ratio.value}`,
+    `Task ID: ${taskId.value}, Quality Check: ${qualityCheck.value}, Thread Ratio: ${threadRatio.value}`,
   )
   try {
     const response = await fetch(url, {
@@ -382,7 +399,7 @@ const handlestartgenerateClick = async () => {
   }
 }
 
-const handlechecklogClick = async () => {
+const handleCheckLogClick = async () => {
   logList.value = 'Now processing...please wait'
   const url = `http://52.183.25.173:52010/show_logs`
   try {
@@ -437,7 +454,7 @@ const handlecancelClick = async () => {
   }
 }
 
-const handledeleteClick = async () => {
+const handleDeleteClick = async () => {
   downloadaudios.value = ''
   optResult.value = 'Try to delete task ... please wait'
   const url = `http://52.183.25.173:52010/delete_task?task_id=${taskId.value}`
@@ -466,7 +483,7 @@ const handledeleteClick = async () => {
   }
 }
 
-const handlegetaudiosClick = async () => {
+const handleGetAudiosClick = async () => {
   downloadaudios.value = ''
   optResult.value = 'Try to get audios ... please wait'
   const url = `http://52.183.25.173:52010/get_audio?task_id=${taskId.value}`
@@ -476,10 +493,10 @@ const handlegetaudiosClick = async () => {
   }
   try {
     const response = await axios.get(url, {
-      responseType: 'blob' // 關鍵修改：指定響應類型為 blob
+      responseType: 'blob', // 關鍵修改：指定響應類型為 blob
     })
     const contentType = response.headers['content-type']
-    
+
     // 檢查是否為錯誤響應（通常是 JSON 格式）
     if (contentType && contentType.indexOf('application/json') !== -1) {
       // 將 blob 轉換為文本來讀取錯誤消息
@@ -511,24 +528,27 @@ const handlegetaudiosClick = async () => {
 }
 
 // 提供所有函數給子組件
-provide('showTooltip', showTooltip)
-provide('hideTooltip', hideTooltip)
-provide('showcattip', showcattip)
-provide('hidecattip', hidecattip)
-provide('showtxttip', showtxttip)
-provide('hidetxttip', hidetxttip)
+provide('showToolTip', showToolTip)
+provide('hideToolTip', hideToolTip)
+provide('showCatTip', showCatTip)
+provide('hideCatTip', hideCatTip)
+provide('showTxtTip', showTxtTip)
+provide('hideTxtTip', hideTxtTip)
+provide('showGenerateTip', showGenerateTip)
+provide('hideGenerateTip', hideGenerateTip)
 provide('updateTooltipPosition', updateTooltipPosition)
-provide('updatetxttipPosition', updatetxttipPosition)
+provide('updateTxtTipPosition', updateTxtTipPosition)
+provide('updateGenerateTipPosition', updateGenerateTipPosition)
 provide('handleSpeakerUploadClick', handleSpeakerUploadClick)
 provide('handleSpeakerListClick', handleSpeakerListClick)
 provide('handleCSVClick', handleCSVClick)
-provide('handlethreadsuggestionClick', handlethreadsuggestionClick)
-provide('handlecheckcsvClick', handlecheckcsvClick)
+provide('handleThreadSuggestionClick', handleThreadSuggestionClick)
+provide('handleCheckCsvClick', handleCheckCsvClick)
 provide('handlestartgenerateClick', handlestartgenerateClick)
-provide('handlechecklogClick', handlechecklogClick)
+provide('handleCheckLogClick', handleCheckLogClick)
 provide('handlecancelClick', handlecancelClick)
-provide('handledeleteClick', handledeleteClick)
-provide('handlegetaudiosClick', handlegetaudiosClick)
+provide('handleDeleteClick', handleDeleteClick)
+provide('handleGetAudiosClick', handleGetAudiosClick)
 </script>
 
 <template>
@@ -585,13 +605,13 @@ provide('handlegetaudiosClick', handlegetaudiosClick)
     >
       <div
         class="flex flex-row"
-        @mouseover="showcattip"
-        @mouseleave="hidecattip"
+        @mouseover="showCatTip"
+        @mouseleave="hideCatTip"
         @mousemove="updateTooltipPosition"
       >
         BreezeVoice Audio Generate /ᐠ .ᆺ. ᐟ\ﾉ
-        <div v-if="iscattipVisible">
-          <img src="@/assets/cat.gif" alt="Example GIF" class="w-6 h-6 ml-5 mx-1 mr-2" />
+        <div v-if="isCatTipVisible">
+          <img src="@/assets/cat.gif" alt="Example GIF" class="w-6 h-6 ml-5 mt-1" />
         </div>
       </div>
 
@@ -620,8 +640,11 @@ provide('handlegetaudiosClick', handlegetaudiosClick)
         Check State
       </button>
       <div class="flex-grow min-h-[32px] px-3 py-2 text-sm text-slate-200 bg-slate-600 rounded">
-        {{ state_result }}
+        {{ stateResult }}
       </div>
+    </div>
+    <div>
+      <WalkerCompose />
     </div>
   </div>
 </template>

@@ -11,11 +11,11 @@
             Custom Speakers upload
           </div>
           <img
-            src="@/assets/exclamation.png"
+            src="@/assets/samples/exclamation.png"
             alt="Icon"
             class="hidden lg:block w-4 h-4 mt-3 mr-3 cursor-pointer"
-            @mouseover="showTooltip"
-            @mouseleave="hideTooltip"
+            @mouseover="showToolTip"
+            @mouseleave="hideToolTip"
             @mousemove="updateTooltipPosition"
           />
           <transition name="fade">
@@ -24,7 +24,7 @@
               :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }"
               class="fixed z-50 p-2 text-slate-100 bg-slate-700 rounded shadow-lg border border-slate-600"
             >
-              <img src="@/assets/speaker_sample.png" alt="Tooltip Image" />
+              <img src="@/assets/samples/speaker_sample.png" alt="Tooltip Image" />
             </div>
           </transition>
         </div>
@@ -74,7 +74,7 @@
               </ul>
             </template>
             <template v-else>
-              <div class="p-3 text-sm text-slate-200 bg-slate-600 rounded">
+              <div class="p-3 text-sm text-slate-200 bg-slate-600 rounded text-center">
                 {{ speakerList }}
               </div>
             </template>
@@ -94,20 +94,20 @@
             Prepare csv
           </div>
           <img
-            src="@/assets/exclamation.png"
+            src="@/assets/samples/exclamation.png"
             alt="Icon"
             class="hidden lg:block w-4 h-4 mt-3 mr-3 cursor-pointer"
-            @mouseover="showtxttip"
-            @mouseleave="hidetxttip"
-            @mousemove="updatetxttipPosition"
+            @mouseover="showTxtTip"
+            @mouseleave="hideTxtTip"
+            @mousemove="updateTxtTipPosition"
           />
           <transition name="fade">
             <div
-              v-if="istxttipVisible"
+              v-if="isTxtTipVisible"
               :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }"
               class="fixed z-50 p-2 text-slate-100 bg-slate-700 rounded shadow-lg border border-slate-600"
             >
-              <img src="@/assets/txt_sample.png" alt="Tooltip Image" />
+              <img src="@/assets/samples/txt_sample.png" alt="Tooltip Image" />
             </div>
           </transition>
         </div>
@@ -162,7 +162,7 @@
       <div
         class="flex flex-col flex-grow w-full mt-3 text-lg text-slate-100 bg-slate-700 rounded-lg shadow-lg border border-slate-600"
       >
-        <div class="flex items-center">
+        <div class="flex items-center justify-between">
           <div
             class="px-3 py-1 text-sm text-slate-100 bg-slate-600 rounded shadow-lg border border-slate-500"
           >
@@ -180,28 +180,29 @@
           </div>
 
           <div class="flex items-center gap-2 accent-blue-500">
-            <label for="thread_ratio" class="text-sm whitespace-nowrap">Thread number:</label>
-            <input type="range" min="1" max="3" step="1" v-model="thread_ratio" class="flex-grow" />
-            <span class="text-sm w-8">{{ thread_ratio }}</span>
+            <label for="threadRatio" class="text-sm whitespace-nowrap">Thread number:</label>
+            <input type="range" min="1" max="3" step="1" v-model="threadRatio" class="flex-grow" />
+            <span class="text-sm w-8">{{ threadRatio }}</span>
           </div>
 
           <div class="flex items-center gap-2">
             <button
               class="px-3 py-2 whitespace-nowrap text-sm text-white bg-orange-500 rounded hover:bg-orange-600 cursor-pointer transition-colors"
-              @click="handlethreadsuggestionClick"
+              @click="handleThreadSuggestionClick"
             >
               Thread Suggestion
             </button>
-            <span class="flex-grow px-3 py-2 text-sm text-slate-200 bg-slate-600 rounded">{{
-              threadSuggestion
-            }}</span>
+            <span
+              class="min-h-[32px] flex-grow px-3 py-2 text-sm text-slate-200 bg-slate-600 rounded"
+              >{{ threadSuggestion }}</span
+            >
           </div>
 
           <div class="flex items-center gap-2">
             <label class="text-sm whitespace-nowrap">Upload CSV:</label>
             <button
               class="px-3 py-2 text-sm text-white bg-orange-500 rounded hover:bg-orange-600 cursor-pointer transition-colors"
-              @click="handlecheckcsvClick"
+              @click="handleCheckCsvClick"
             >
               CSV check
             </button>
@@ -252,7 +253,7 @@
           </div>
           <button
             class="px-3 py-1 mt-3 mr-3 text-sm text-white bg-orange-500 rounded hover:bg-orange-600 cursor-pointer transition-colors"
-            @click="handlechecklogClick"
+            @click="handleCheckLogClick"
           >
             Check logs
           </button>
@@ -279,7 +280,7 @@
       <div
         class="flex flex-col w-full mt-3 text-lg text-slate-100 bg-slate-700 rounded-lg shadow-lg border border-slate-600"
       >
-        <div class="flex items-center">
+        <div class="flex items-center justify-between">
           <div
             class="px-3 py-1 text-sm text-slate-100 bg-slate-600 rounded shadow-lg border border-slate-500"
           >
@@ -296,13 +297,13 @@
             </button>
             <button
               class="px-3 py-2 text-sm text-white bg-orange-500 rounded hover:bg-orange-600 cursor-pointer transition-colors"
-              @click="handledeleteClick"
+              @click="handleDeleteClick"
             >
               Delete task
             </button>
             <button
               class="px-3 py-2 text-sm text-white bg-orange-500 rounded hover:bg-orange-600 cursor-pointer transition-colors"
-              @click="handlegetaudiosClick"
+              @click="handleGetAudiosClick"
             >
               Get result
             </button>
@@ -338,8 +339,6 @@
 import { inject } from 'vue'
 import type { Ref } from 'vue'
 import UploadHandler from '@/components/Common/UploadHandler.vue'
-
-// 注入所有需要的數據和函數
 const taskId = inject<Ref<string>>('taskId')!
 const speakerUploadFile = inject<Ref<File | null>>('speakerUploadFile')!
 const txtUploadFile = inject<Ref<File | null>>('txtUploadFile')!
@@ -352,33 +351,33 @@ const expansionRatio = inject<Ref<number>>('expansionRatio')!
 const downloadUrl = inject<Ref<string>>('downloadUrl')!
 const downloadaudios = inject<Ref<string>>('downloadaudios')!
 const qualityCheck = inject<Ref<boolean>>('qualityCheck')!
-const thread_ratio = inject<Ref<number>>('thread_ratio')!
+const threadRatio = inject<Ref<number>>('threadRatio')!
 const threadSuggestion = inject<Ref<string>>('threadSuggestion')!
 const generateResult = inject<Ref<string>>('generateResult')!
 const optResult = inject<Ref<string>>('optResult')!
 const csvCheckResult = inject<Ref<string>>('csvCheckResult')!
 const isTooltipVisible = inject<Ref<boolean>>('isTooltipVisible')!
-const istxttipVisible = inject<Ref<boolean>>('istxttipVisible')!
+const isTxtTipVisible = inject<Ref<boolean>>('isTxtTipVisible')!
 const tooltipX = inject<Ref<number>>('tooltipX')!
 const tooltipY = inject<Ref<number>>('tooltipY')!
 
 // 注入所有需要的函數
-const showTooltip = inject<() => void>('showTooltip')!
-const hideTooltip = inject<() => void>('hideTooltip')!
-const showtxttip = inject<() => void>('showtxttip')!
-const hidetxttip = inject<() => void>('hidetxttip')!
+const showToolTip = inject<() => void>('showToolTip')!
+const hideToolTip = inject<() => void>('hideToolTip')!
+const showTxtTip = inject<() => void>('showTxtTip')!
+const hideTxtTip = inject<() => void>('hideTxtTip')!
 const updateTooltipPosition = inject<(event: MouseEvent) => void>('updateTooltipPosition')!
-const updatetxttipPosition = inject<(event: MouseEvent) => void>('updatetxttipPosition')!
+const updateTxtTipPosition = inject<(event: MouseEvent) => void>('updateTxtTipPosition')!
 const handleSpeakerUploadClick = inject<() => Promise<void>>('handleSpeakerUploadClick')!
 const handleSpeakerListClick = inject<() => Promise<void>>('handleSpeakerListClick')!
 const handleCSVClick = inject<() => Promise<void>>('handleCSVClick')!
-const handlethreadsuggestionClick = inject<() => Promise<void>>('handlethreadsuggestionClick')!
-const handlecheckcsvClick = inject<() => Promise<void>>('handlecheckcsvClick')!
+const handleThreadSuggestionClick = inject<() => Promise<void>>('handleThreadSuggestionClick')!
+const handleCheckCsvClick = inject<() => Promise<void>>('handleCheckCsvClick')!
 const handlestartgenerateClick = inject<() => Promise<void>>('handlestartgenerateClick')!
-const handlechecklogClick = inject<() => Promise<void>>('handlechecklogClick')!
+const handleCheckLogClick = inject<() => Promise<void>>('handleCheckLogClick')!
 const handlecancelClick = inject<() => Promise<void>>('handlecancelClick')!
-const handledeleteClick = inject<() => Promise<void>>('handledeleteClick')!
-const handlegetaudiosClick = inject<() => Promise<void>>('handlegetaudiosClick')!
+const handleDeleteClick = inject<() => Promise<void>>('handleDeleteClick')!
+const handleGetAudiosClick = inject<() => Promise<void>>('handleGetAudiosClick')!
 </script>
 
 <style scoped>
