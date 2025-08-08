@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![BreezeVoice Logo](src/assets/logo.svg)
+![BreezeVoice](src/assets/BV.png)
 
 _一個現代化的語音生成前端應用程式，基於 Vue 3 + TypeScript 構建_
 

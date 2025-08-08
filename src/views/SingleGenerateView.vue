@@ -229,7 +229,7 @@
                 Download
               </a>
             </div>
-            <div v-else class="flex items-center w-full">
+            <div v-else class="flex items-center -">
               <span
                 class="flex-grow min-h-[32px] px-3 py-2 text-sm text-slate-200 bg-slate-600 rounded"
               >
